@@ -13,14 +13,19 @@ The script also provides an **interactive command line interface**, similar to M
 ## Requirements
 
 Python 3 (≥ 3.5)
+
 Capstone
+
 Keystone
+
 Libemu
+
 gcc
 
 ## Setup
 
 ```
+# python3 libraries
 pip3 install capstone
 pip3 install keystone-engine
 pip3 install colorama
@@ -67,7 +72,7 @@ optional arguments:
   -ob, --objdump        Use Linux objdump instead of Python Capstone library.
 ```
 
-* *The Python Capstone library might truncate code in certain cases. Use --objdump if necessary.* *
+*The Python Capstone library might truncate code in certain cases. Use --objdump if necessary.*
 
 ## Examples
 
@@ -122,7 +127,7 @@ echo -e "\x31\xc0\xb0\x04\x31\xdb\xb3\x01\x31\xd2\x52\x68\x72\x6c\x64\x0a\x68\x6
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw -b "\x00" -e x86/shikata_ga_nai -o testing.bin
 ```
 
-### Demo - Altering Shikata Ga Nai Encoded 'Hello World' Shellcode
+### Demo - Modifiying Shikata Ga Nai Encoded 'Hello World' Shellcode
 
 <img title="" src="https://media.giphy.com/media/kDTt8Q7ndWlbJaQdJv/giphy.gif" alt="" data-align="center">
 
@@ -135,4 +140,5 @@ Jelle-OS3
 ## TO-DO
 
 Create x64 version of script
+
 Create Windows versions of script
