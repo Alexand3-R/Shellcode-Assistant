@@ -22,7 +22,7 @@ The script also provides an **interactive command line interface**, similar to M
 ```
 # python3 libraries
 pip3 install capstone
-pip3 install keystone-engine
+pip3 install --no-binary keystone-engine keystone-engine
 pip3 install colorama
 
 # gcc is required for compiling the raw shellcode into an executable
