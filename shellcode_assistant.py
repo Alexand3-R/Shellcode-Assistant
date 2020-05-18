@@ -23,7 +23,7 @@ def cli_options(args=sys.argv[1:]):
 	p_mutex.add_argument("-c", "--compile", help="Compile file using C wrapper.", action='store_true', required=False)
 	p_mutex.add_argument("-e", "--emulate", help="Emulate and analyse shellcode using Libemu.", action='store_true', required=False)
 	p_mutex.add_argument("-d", "--disassemble", help="Disassemble shellcode.", action='store_true', required=False)
-	p_mutex.add_argument("-a", "--assembler", help="Start ASM interactive assembler mode.", action='store_true', required=False)
+	p_mutex.add_argument("-a", "--assembler", help="Start ASM interactive assembler / disassembler mode.", action='store_true', required=False)
 	p_mutex.add_argument("-A", "--all", help="Run all functions above.", action='store_true', required=False)
 	p_mutex.add_argument("-R", "--autorecompile", help="Automatic recompiling and testing upon file modification time change.", action='store_true', required=False)
 	p.add_argument("-ob", "--objdump", help="Use Linux objdump instead of Python Capstone library.", action='store_true', required=False)
@@ -89,7 +89,7 @@ def reset_terminal():
 def assemble():
 	CODE = input(format_text_yellow("asm > "))
 	if CODE == "?":
-		print("x86-instruction | recompile | test | emulate | ls | clear | exit")
+		print("x86-instruction | recompile | test | emulate | hexdump | ls | clear | exit")
 	elif CODE.lower() == "recompile":
 		recompile()
 		print_green_line()
@@ -102,6 +102,10 @@ def assemble():
 	elif CODE.lower() == "emulate":
 		emulate_code(args.file)
 		print_green_line()
+	elif CODE.lower() == "hexdump":
+		print("\n")
+		load_file(args.file)
+		print_hex()
 	elif CODE.lower() == "reset":
 		reset_terminal()
 		print_green_line()
@@ -280,6 +284,5 @@ if __name__ == '__main__':
 	if args.file and args.assembler and not args.autorecompile:
 		print(format_text_green("---------------------------------------"))
 		assembler_loop()
-
 
 
