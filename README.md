@@ -94,7 +94,7 @@ root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -R
 Last Modified: Sat May 16 16:48:48 2020
 ---------------------------------------
 asm > ?
-x86-instruction | recompile | test | emulate | ls | clear | exit
+x86-instruction | recompile | test | emulate | hexdump | ls | clear | exit
 asm > jmp esp; inc ecx; inc ebx
 \xFF\xE4\x41\x43
 asm > 0xFFE5
