@@ -31,6 +31,9 @@ sudo apt install build-essential
 # libemu is required for outputting a graph using Libemu's sctest
 sudo apt install graphviz
 sudo apt install libemu2
+
+# gcc-multilib is required to compile x86 executables on x64 systems
+apt-get install gcc-multilib
 ```
 
 ## Usage
