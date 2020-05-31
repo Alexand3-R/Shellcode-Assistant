@@ -5,6 +5,7 @@ import os
 import time
 import pipes
 import threading
+import yara
 from capstone import *
 from keystone import *
 from subprocess import Popen, PIPE
@@ -12,9 +13,10 @@ from colorama import Fore, Style
 
 # COMMAND LINE OPTIONS
 def cli_options(args=sys.argv[1:]):
-	p = argparse.ArgumentParser(description="== Tool to assist a user in modifiying shellcode ==")
+	p = argparse.ArgumentParser(description="== Tool to assist a user in writing or modifiying shellcode ==")
 	p_mutex = p.add_mutually_exclusive_group(required=False)
 	p.add_argument("-f", "--file", help="Enter path to file.", required=True)
+	p.add_argument("-y", "--yara", help="Enter path to YARA rule.", required=False)
 	p.add_argument("-o", "--offset", help="Set hexadecimal program offset.", default="0x1000", required=False)
 	p_mutex.add_argument("-t", "--test", help="Run and test compiled executable.", action='store_true', required=False)
 	p.add_argument("-s", "--stdout", help="Check STDOUT for a specific string.", default="", required=False)
@@ -34,10 +36,12 @@ def cli_options(args=sys.argv[1:]):
 def load_file(path):
 	global file
 	global shellcode
+	global shellcode_hex
 	global length
 	file = open(path, "rb").read()
 	x = bytes(file)
 	shellcode = ''.join(r'\x'+hex(letter).upper()[2:].zfill(2) for letter in x)
+	shellcode_hex = "0x" + ''.join(r' '+hex(letter).upper()[2:].zfill(2) for letter in x)
 	length = len(x)
 
 def print_info(file):
@@ -46,8 +50,11 @@ def print_info(file):
 	print (a + b)
 
 def print_hex():
+	print(format_text_green("Shellcode as hex:"))
+	print(shellcode_hex + "\n")
 	print(format_text_green("Shellcode as escaped hex string: \n"))
 	print(shellcode + "\n")
+
 
 def disassemble_code(data,mode):
 	if mode == 1:
@@ -77,8 +84,17 @@ def disassemble_instruction(CODE):
 	for i in md.disasm(CODE, 0x1000):
 		print("%s\t%s" %(i.mnemonic, i.op_str))
 
-def reset_terminal():
+def clear_terminal():
 	os.system('clear')
+	print(format_text_yellow("\n" + header() + "\n"))
+	load_file(args.file)
+	print_info(args.file)
+	disassemble_code(file, mode)
+	print(format_text_green("---------------------------------------"))
+	print(format_text_green("Last Modified: " + time.ctime(os.path.getmtime(args.file))))
+
+def reset_terminal():
+	os.system('reset')
 	print(format_text_yellow("\n" + header() + "\n"))
 	load_file(args.file)
 	print_info(args.file)
@@ -89,7 +105,7 @@ def reset_terminal():
 def assemble():
 	CODE = input(format_text_yellow("asm > "))
 	if CODE == "?":
-		print("x86-instruction | recompile | test | emulate | hexdump | ls | clear | exit")
+		print(" <x86-instruction> | recompile | test | emulate | yarascan | hexdump | ls | clear | reset | exit")
 	elif CODE.lower() == "recompile":
 		recompile()
 		print_green_line()
@@ -98,6 +114,9 @@ def assemble():
 		print_green_line()
 	elif CODE.lower() == "ls":
 		os.system('ls')
+		print_green_line()
+	elif CODE.lower() == "yarascan":
+		yara_scan(args.yara, args.file)
 		print_green_line()
 	elif CODE.lower() == "emulate":
 		emulate_code(args.file)
@@ -110,7 +129,7 @@ def assemble():
 		reset_terminal()
 		print_green_line()
 	elif CODE.lower() == "clear":
-		reset_terminal()
+		clear_terminal()
 		print_green_line()
 	elif CODE.lower() == "exit":
 		os._exit(1)
@@ -178,7 +197,7 @@ def emulate_code(file):
 	print(format_text_green("\nShellcode emulated:"))
 	pipes.quote(os.popen("cat " + file + " | sctest -vvv -Ss 100000 -G " + file + ".dot").read())
 	pipes.quote(os.popen("dot " + file + ".dot -Tpng -o " + file + ".png").read())
-	print("Diagram saved as \'" +  file + ".dot\' & \'" + file + ".png\'")
+	print("Graph saved as \'" +  file + ".dot\' & \'" + file + ".png\'")
 
 # FUNCTION LOOPS
 def assembler_loop():
@@ -202,10 +221,35 @@ def recompiler_loop():
 			if timestamp != time.ctime(os.path.getmtime(args.file)):
 				recompile()
 				test_code()
+				if args.yara:
+					yara_scan(args.yara, args.file)
 				print("\nPress the 'Enter' key to start the Assembler")
 				timestamp = time.ctime(os.path.getmtime(args.file))
 		except KeyboardInterrupt:
 			os._exit(1)
+
+# YARA SCAN
+def yara_scan(rules, testfile):
+	rules = yara.compile(filepath=args.yara)
+	print(format_text_green("\nYARA Scan:"))
+	with open(testfile, 'rb') as f:
+		scan = rules.match(data=f.read())
+		if scan != {}:
+			length = len(scan['main'])
+			for i in range(0,length):
+				triggered_rule = scan['main'][i]['rule']
+				result = scan['main'][i]['matches']
+				rule_identifier = scan['main'][i]['strings'][i]['identifier']
+				detected_bytes = ''.join(r'\x'+hex(letter).upper()[2:].zfill(2) for letter in str.encode(scan['main'][i]['strings'][i]['data']))
+				offset = scan['main'][i]['strings'][i]['offset']
+				print("Detection:\t" + format_text_red(str(result)))
+				print("Rule:\t\t" + triggered_rule)
+				print("String:\t\t" + rule_identifier)
+				print("Offset:\t\t" + str(offset) + "\n")		
+				#print("Detected Bytes:\t" + detected_bytes + "\n")
+		elif scan == {}:
+			print("Detection:\tFalse\n")
+	
 
 # ADD CMD SUPPORT
 try:
@@ -253,6 +297,8 @@ if __name__ == '__main__':
 		print_info(args.file)
 	if args.hexdump and args.file:
 		print_hex()
+	if args.file and args.yara and not args.all and not args.autorecompile:
+		yara_scan(args.yara, args.file)
 	if args.file and args.disassemble:
 		disassemble_code(file,mode)
 	if args.file and args.compile:
@@ -268,12 +314,16 @@ if __name__ == '__main__':
 		compile_code()
 		emulate_code(args.file)
 		test_code()
+		if args.yara:
+			yara_scan(args.yara, args.file)
 		check_string()
 		assembler_loop()
 	if args.file and args.autorecompile:
 		disassemble_code(file, mode)
 		compile_code()
 		test_code()
+		if args.yara:
+			yara_scan(args.yara, args.file)
 		timestamp = time.ctime(os.path.getmtime(args.file))
 		print(format_text_green("Last Modified: " + timestamp))
 		print(format_text_green("---------------------------------------"))
