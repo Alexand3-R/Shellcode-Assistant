@@ -1,12 +1,12 @@
 # Shellcode Assistant
 
-A useful script for hex editing, writing and/or testing **Linux x86 shellcode** to bypass IDS/IPS.
+A useful script for hex editing, writing, scanning and/or testing **Linux x86 shellcode** to bypass IDS/IPS.
 
-**Tested on Kali Linux Rolling x86**
+**Tested on Kali Linux Rolling**
 
 The script was developed for a Offensive Technologies research project by students of OS3. We were looking for a comfortable and efficient way of altering existing shellcode. This tool will help reproduce the experiments of our research.
 
-It is designed to make the process of altering shellcode to bypass **signature based** detection easier. It takes a raw shellcode file as input and offers various options, including dumping code in hexadecimal or Intel x86 ASM format, compiling code using a C wrapper and executing and checking a raw shellcode file for a specific string. In addition, it can emulate, analyse and generate a graph for x86 shellcode using Libemu. Automatic recompilation, which triggers when the modification time stamp changes, is another useful feature that might save time when raw shellcode is manually modified and saved using a hex editor. **We recommend using the automatic recompilation mode**.
+It is designed to make the process of altering shellcode to bypass **signature based** and heuristic detection easier. It takes a raw shellcode file as input and offers various options, including scanning shellcode using YARA rules, dumping code in hexadecimal or Intel x86 ASM format, compiling code using a C wrapper and executing and checking a raw shellcode file for a specific string. In addition, it can emulate, analyse and generate a graph for x86 shellcode using Libemu. Automatic recompilation, which triggers when the modification time stamp changes, is another useful feature that might save time when raw shellcode is manually modified and saved using a hex editor.**We recommend using the automatic recompilation mode by using the -R flag**.
 
 The script also provides an **interactive command line interface**, similar to Metasploit's nasm-shell, for assembling and disassembling instructions. It does this using the Capstone and Keystone libraries.
 
@@ -14,6 +14,8 @@ The script also provides an **interactive command line interface**, similar to M
 * Python 3 (≥ 3.5)
 * Capstone
 * Keystone
+* YARA
+* Colorama
 * Libemu
 * gcc
 
@@ -24,6 +26,7 @@ The script also provides an **interactive command line interface**, similar to M
 pip3 install capstone
 pip3 install --no-binary keystone-engine keystone-engine
 pip3 install colorama
+pip3 install yara
 
 # gcc is required for compiling the raw shellcode into an executable
 sudo apt install build-essential
@@ -34,6 +37,9 @@ sudo apt install libemu2
 
 # gcc-multilib is required to compile x86 executables on x64 systems
 apt-get install gcc-multilib
+
+# Create symbolic link to YARA library in case it isn't found
+ln -s /usr/local/lib/python3.8/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so
 ```
 
 ## Usage
@@ -43,15 +49,15 @@ apt-get install gcc-multilib
                 -- Shellcode Assistant v1.0 --
 =============================================================
 
-usage: shellcode_assistant.py [-h] -f FILE [-o OFFSET] [-t] [-s STDOUT]
-                              [-se STDERR] [-x] [-c] [-e] [-d] [-a] [-A] [-R]
-                              [-ob]
+usage: shellcode_assistant.py [-h] -f FILE [-y YARA] [-o OFFSET] [-t] [-s STDOUT] [-se STDERR] [-x] [-c]
+                              [-e] [-d] [-a] [-A] [-R] [-ob]
 
-== Tool to assist a user in modifiying shellcode ==
+== Tool to assist a user in writing or modifiying shellcode ==
 
 optional arguments:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  Enter path to file.
+  -y YARA, --yara YARA  Enter path to YARA rule.
   -o OFFSET, --offset OFFSET
                         Set hexadecimal program offset.
   -t, --test            Run and test compiled executable.
@@ -65,8 +71,7 @@ optional arguments:
   -d, --disassemble     Disassemble shellcode.
   -a, --assembler       Start ASM interactive assembler / disassembler mode.
   -A, --all             Run all functions above.
-  -R, --autorecompile   Automatic recompiling and testing upon file
-                        modification time change.
+  -R, --autorecompile   Automatic recompiling and testing upon file modification time change.
   -ob, --objdump        Use Linux objdump instead of Python Capstone library.
 ```
 
@@ -75,8 +80,8 @@ optional arguments:
 ## Examples
 
 ```
-root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -A -s "Hello World" -o 40404040
-root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -R
+root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -R -s "Hello World" -o 0x0 -y rule.yar
+root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -A -s "Hello World"
 ```
 
 ### Demo - Modifying Shikata Ga Nai Encoded 'Hello World' Shellcode
@@ -97,17 +102,15 @@ root@kali:~/OT-Project# python3 shellcode_assistant.py -f testing.bin -R
 Last Modified: Sat May 16 16:48:48 2020
 ---------------------------------------
 asm > ?
-x86-instruction | recompile | test | emulate | hexdump | ls | clear | exit
-asm > jmp esp; inc ecx; inc ebx
-\xFF\xE4\x41\x43
-asm > 0xFFE5
-jmp    ebp
-asm > \xFF\xE6
-jmp    esi
-asm > emulate
+ <x86-instruction> | recompile | test | emulate | yarascan | hexdump | ls | clear | reset | exit
+asm > \xC7\xC3\xAC\xCB\x77\x92
+mov	ebx, 0x9277cbac
+asm > push 0x9277cbac; pop ebx
+\x68\xAC\xCB\x77\x92\x5B
+asm >
 
 Shellcode emulated:
-Diagram saved as 'testing.bin.dot' & 'testing.bin.png'
+Graph saved as 'testing.bin.dot' & 'testing.bin.png'
 ---------------------------------------
 asm >
 ```
