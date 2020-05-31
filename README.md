@@ -40,7 +40,7 @@ sudo apt install libemu2
 # gcc-multilib is required to compile x86 executables on x64 systems
 apt-get install gcc-multilib
 
-# Create symbolic link to YARA library in case it isn't found
+# create symbolic link to YARA library in case it isn't found
 ln -s /usr/local/lib/python3.8/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so
 ```
 
