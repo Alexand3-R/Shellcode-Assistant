@@ -6,7 +6,9 @@ A useful script for hex editing, writing, scanning and/or testing **Linux x86 sh
 
 The script was developed for a Offensive Technologies research project by students of OS3. We were looking for a comfortable and efficient way of altering existing shellcode. This tool will help reproduce the experiments of our research.
 
-It is designed to make the process of altering shellcode to bypass **signature based** and heuristic detection easier. It takes a raw shellcode file as input and offers various options, including scanning shellcode using YARA rules, dumping code in hexadecimal or Intel x86 ASM format, compiling code using a C wrapper and executing and checking a raw shellcode file for a specific string. In addition, it can emulate, analyse and generate a graph for x86 shellcode using Libemu. Automatic recompilation, which triggers when the modification time stamp changes, is another useful feature that might save time when raw shellcode is manually modified and saved using a hex editor.**We recommend using the automatic recompilation mode by using the -R flag**.
+It is designed to make the process of altering shellcode to bypass **signature based** and heuristic detection easier. It takes a raw shellcode file as input and offers various options, including scanning shellcode using YARA rules, dumping code in hexadecimal or Intel x86 ASM format, compiling code using a C wrapper and executing and checking a raw shellcode file for a specific string. In addition, it can emulate, analyse and generate a graph for x86 shellcode using Libemu. Automatic recompilation, which triggers when the modification time stamp changes, is another useful feature that might save time when raw shellcode is manually modified and saved using a hex editor.
+
+**We recommend using the automatic recompilation mode by using the -R flag**.
 
 The script also provides an **interactive command line interface**, similar to Metasploit's nasm-shell, for assembling and disassembling instructions. It does this using the Capstone and Keystone libraries.
 
