@@ -2,7 +2,7 @@
 
 A useful script for hex editing, writing, scanning and/or testing **Linux x86 shellcode** to bypass IDS/IPS.
 
-**Tested on Kali Linux Rolling**
+**Tested on Kali Linux Rolling x86 & x64**
 
 The script was developed for a Offensive Technologies research project by students of OS3. We were looking for a comfortable and efficient way of altering existing shellcode. This tool will help reproduce the experiments of our research.
 
