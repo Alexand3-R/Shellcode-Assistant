@@ -223,7 +223,7 @@ def recompiler_loop():
 				test_code()
 				if args.yara:
 					yara_scan(args.yara, args.file)
-				print("\nPress the 'Enter' key to start the Assembler")
+				print("\nPress the 'Enter' key to start the Assembler / Disassembler")
 				timestamp = time.ctime(os.path.getmtime(args.file))
 		except KeyboardInterrupt:
 			os._exit(1)
